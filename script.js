@@ -219,6 +219,8 @@ function setMiniTimer(timerType) {
 			break;
 	}
 	miniTimer[1] = 0;
+	if(isMiniTimerRunning)
+		changeMiniTimerState();
 	document.getElementById("sbMiniText").innerHTML = isTimeout? "TIMEOUT":isBasketball? "SHOT CLOCK":"TO SERVE";
 	updateMiniTimerDisplay();
 	updateAllTimerButton();
@@ -566,6 +568,27 @@ function changeBallPossession(teamNum) {
 	}
 }
 
+function adjustTimer(adjustDsec) {
+	let rawDsec = timer[0]*600 + timer[1]*10 + timer[2];
+	rawDsec = rawDsec+adjustDsec;
+	if(rawDsec > 59999) rawDsec = 59999;
+	if(rawDsec <= 1) rawDsec = 1;
+	timer[0] = Math.floor(rawDsec/600);
+	timer[1] = Math.floor(rawDsec/10)%60;
+	timer[2] = rawDsec%10;
+	updateTimerDisplay();
+}
+
+function adjustMiniTimer(adjustDsec) {
+	let rawDsec = miniTimer[0]*10 + miniTimer[1];
+	rawDsec = rawDsec+adjustDsec;
+	if(rawDsec > 999) rawDsec = 999;
+	if(rawDsec <= 1) rawDsec = 1;
+	miniTimer[0] = Math.floor(rawDsec/10);
+	miniTimer[1] = rawDsec%10;
+	updateMiniTimerDisplay();
+}
+
 function activateTimerThread() {
 	let timerRun, miniTimerRun, timerDelta, lastTimerDelta = 0, miniTimerDelta, lastMiniTimerDelta = 0;
 	
@@ -640,51 +663,115 @@ function countdownMiniTimer() {
 
 function toggleHotkeyActivation() {
 	isHotkeyMode = document.getElementById("hotkeyActivation").checked;
-	checkbox.onmousedown = function(event) { event.preventDefault(); }
+	// checkbox.onmousedown = function(event) { event.preventDefault(); }
+	document.getElementById("hotkeyActivation").addEventListener("click", function(event){
+		event.preventDefault()
+	});
 }
 
 function setHotkeyFunctions() {
 	window.addEventListener('keydown', function(event) {
             if(isHotkeyMode) {
-			// TEAM A HOTKEYS
-                if(event.key == "a") document.getElementById("teamAposs").click();
-                if(event.key == "w") document.getElementById("lowerAminus1").click();
-                if(event.key == "s") document.getElementById("lowerAplus1").click();
-                if(event.key == "e") document.getElementById("upperAminus1").click();
-                if(event.key == "d") document.getElementById("upperAplus1").click();
-                if(event.key == "r") isBasketball? document.getElementById("scoreAfuncA").click():document.getElementById("scoreAfuncB").click();
-                if(event.key == "f") isBasketball? document.getElementById("scoreAfuncB").click():document.getElementById("scoreAfuncC").click();
-			
-                // TEAM B HOTKEYS
-                if(event.key == ";") document.getElementById("teamBposs").click();
-                if(event.key == "o") document.getElementById("lowerBminus1").click();
-                if(event.key == "l") document.getElementById("lowerBplus1").click();
-                if(event.key == "i") document.getElementById("upperBminus1").click();
-                if(event.key == "k") document.getElementById("upperBplus1").click();
-                if(event.key == "u") isBasketball? document.getElementById("scoreBfuncA").click():document. getElementById("scoreBfuncB").click();
-                if(event.key == "j") isBasketball? document.getElementById("scoreBfuncB").click():document.getElementById("scoreBfuncC").click();
-			
+				// SCORE AND COUNTERS
+				if(event.key.toLowerCase() == "s") {
+					if(event.shiftKey)
+						document.getElementById("lowerAminus1").click();
+					else
+						document.getElementById("lowerAplus1").click();
+				}
+
+				if(event.key.toLowerCase() == "d") {
+					if(event.shiftKey)
+						document.getElementById("upperAminus1").click();
+					else
+						document.getElementById("upperAplus1").click();
+				}
+
+				if(event.key.toLowerCase() == "f") {
+					if(event.shiftKey)
+						isBasketball? document.getElementById("scoreAfuncA").click():document.getElementById("scoreAfuncB").click();
+					else
+						isBasketball? document.getElementById("scoreAfuncB").click():document.getElementById("scoreAfuncC").click();
+				}
+
+				if(event.key.toLowerCase() == "l") {
+					if(event.shiftKey)
+						document.getElementById("lowerBminus1").click();
+					else
+						document.getElementById("lowerBplus1").click();
+				}
+
+				if(event.key.toLowerCase() == "k") {
+					if(event.shiftKey)
+						document.getElementById("upperBminus1").click();
+					else
+						document.getElementById("upperBplus1").click();
+				}
+
+				if(event.key.toLowerCase() == "j") {
+					if(event.shiftKey)
+						isBasketball? document.getElementById("scoreBfuncA").click():document.getElementById("scoreBfuncB").click();
+					else
+						isBasketball? document.getElementById("scoreBfuncB").click():document.getElementById("scoreBfuncC").click();
+				}
+
+				// POSSESSION
+				if(event.key.toLowerCase() == "a") document.getElementById("teamAposs").click();
+				if(event.key == ";") document.getElementById("teamBposs").click();
+
+				// PERIOD HOTKEYS
+				if(event.key == "F7") {
+					document.getElementById("periodNum").stepDown();
+					changePeriod();
+				}
+				if(event.key == "F8") {
+					document.getElementById("periodNum").stepUp();
+					changePeriod();
+				}
+
+				// CHANGE COURT
+				if(event.key == "F1") document.getElementById("changeCourt").click();
+
                 // TIMER HOTKEYS
                 if(event.key == " ") {
 					document.getElementById("toggleTimerState").click();
                     event.preventDefault();
                 }
-                if(event.key == "b") document.getElementById("toggleMiniTimerState").click();
-                if(event.key == "v") document.getElementById("setMiniTimerB").click();
-                if(event.key == "n") document.getElementById("setMiniTimerA").click();
+                if(event.key.toLowerCase() == "b") document.getElementById("toggleMiniTimerState").click();
+                if(event.key.toLowerCase() == "v") document.getElementById("setMiniTimerB").click();
+                if(event.key.toLowerCase() == "n") document.getElementById("setMiniTimerA").click();
+				if(event.code == "Digit8") {
+					if(event.shiftKey)
+						adjustTimer(-600);
+					else adjustTimer(600);
+				}
+				if(event.code == "Digit9") {
+					if(event.shiftKey)
+						adjustTimer(-10);
+					else adjustTimer(10);
+				}
+				if(event.code == "Digit0") {
+					if(event.shiftKey)
+						adjustTimer(-1);
+					else adjustTimer(1);
+				}
+				if(event.key == "_") adjustMiniTimer(-10);
+				if(event.key == "-") adjustMiniTimer(10);
+				if(event.key == "+") adjustMiniTimer(-1);
+				if(event.key == "=") adjustMiniTimer(1);
 			
                 // SFX HOTKEYS
                 if(event.key == "Backspace") document.getElementById("hornButton").onmousedown();
-                if(event.key == "1") document.getElementById("sfxButton1").click();
-                if(event.key == "2") document.getElementById("sfxButton2").click();
-                if(event.key == "3") document.getElementById("sfxButton3").click();
-                if(event.key == "4") document.getElementById("sfxButton4").click();
-                if(event.key == "5") document.getElementById("sfxButton5").click();
+                if(event.code == "Digit1") document.getElementById("sfxButton1").click();
+                if(event.code == "Digit2") document.getElementById("sfxButton2").click();
+                if(event.code == "Digit3") document.getElementById("sfxButton3").click();
+                if(event.code == "Digit4") document.getElementById("sfxButton4").click();
+                if(event.code == "Digit5") document.getElementById("sfxButton5").click();
             }
 		}
 	);
     window.addEventListener('keyup', function(event) {
-            if(event.key == "Backspace" && isHotkeyMode)
+            if(event.key === "Backspace" && isHotkeyMode)
                 document.getElementById("hornButton").onmouseup();
         }
     );
