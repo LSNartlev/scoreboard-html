@@ -120,8 +120,7 @@ function updateTimerElements() {
 	document.getElementById("toggleTimerState").style.color =	isTimerRunning? "#ffffff":"";
 	document.getElementById("timerStatus").innerHTML = isTimerRunning? "TIMER RUNNING":"TIMER STOPPED";
 	document.getElementById("timerStatus").style.backgroundColor = isTimerRunning? "#008000":"#ff0000";
-	document.getElementById("sbPeriodNum").style.backgroundColor = isTimerRunning? "#000000":"#ffffff";
-	document.getElementById("sbPeriodNum").style.color = isTimerRunning? "#ffffff":"#000000";
+	document.getElementById("sbPeriodNum").style.backgroundColor = isTimerRunning? "#000000":"#404040";
 }
 
 function toggleMiniTimerUsage(isByClick) {
@@ -142,9 +141,9 @@ function toggleMiniTimerUsage(isByClick) {
 	document.getElementById("toggleMiniTimerState").disabled = isMiniTimerEnabled? false:true;
 	document.getElementById("sbMiniNum").style.visibility = isMiniTimerEnabled? "visible":"hidden";
 	document.getElementById("sbMiniText").style.visibility = isMiniTimerEnabled? "visible":"hidden";
-	console.log("Status before update: " + document.getElementById("toggleAllTimerState").disabled);
 	document.getElementById("toggleAllTimerState").disabled = (isTimerEnabled && isMiniTimerEnabled)? false:true;
-	console.log("Status at end of function update: " + document.getElementById("toggleAllTimerState").disabled);
+	if(isMiniTimerEnabled === false)
+		isMiniTimerRunning = false;
 }
 
 function changeMiniTimerState() {
@@ -160,8 +159,12 @@ function updateMiniTimerElements() {
 	document.getElementById("toggleMiniTimerState").style.color = isMiniTimerRunning? "#ffffff":"";
 	document.getElementById("miniTimerStatus").innerHTML = isMiniTimerRunning? "TIMER RUNNING":"TIMER STOPPED";
 	document.getElementById("miniTimerStatus").style.backgroundColor = isMiniTimerRunning? "#008000":"#ff0000";
-	document.getElementById("sbMiniNum").style.backgroundColor = isMiniTimerRunning? "#000000":"#ff0000";
-	document.getElementById("sbMiniNum").style.color = isMiniTimerRunning? "#ff0000":"#ffffff";
+	document.getElementById("sbMiniNum").style.backgroundColor = isMiniTimerRunning? "#000000":"#400000";
+	document.getElementById("sbMiniNum").style.color = isMiniTimerRunning? "#ff3030":"#ff0000";
+	if(miniTimer[0] == 0 && miniTimer[1] == 0) {
+		document.getElementById("sbMiniNum").style.backgroundColor = "#ff0000";
+		document.getElementById("sbMiniNum").style.color = "#000000";
+	}
 }
 
 function changeAllTimerState() {
@@ -395,8 +398,7 @@ function updateCounter(team, ctrType, ctrButton) {
 }
 
 function updateTimerDisplay() {
-	document.getElementById("sbPeriodNum").style.backgroundColor = isTimerRunning? "#000000":"#ffffff";
-	document.getElementById("sbPeriodNum").style.color = isTimerRunning? "#ffffff":"#000000";
+	document.getElementById("sbPeriodNum").style.backgroundColor = isTimerRunning? "#000000":"#404040";
 	document.getElementById("sbPeriodNum").innerHTML = timer[0] > 0?
 		timer[0]+":"+timer[1].toString().padStart(2,"0") // mm:ss
 		:
@@ -404,8 +406,6 @@ function updateTimerDisplay() {
 }
 
 function updateMiniTimerDisplay() {
-	document.getElementById("sbMiniNum").style.backgroundColor = isMiniTimerRunning? "#000000":"#ff0000";
-	document.getElementById("sbMiniNum").style.color = isMiniTimerRunning? "#ff3030":"#ffffff";
 	if(miniTimer[0] <= 4)
         document.getElementById("sbMiniNum").innerHTML = miniTimer[0]+"."+(miniTimer[1]);
     else document.getElementById("sbMiniNum").innerHTML = miniTimer[0]+"";
@@ -664,9 +664,6 @@ function countdownMiniTimer() {
 function toggleHotkeyActivation() {
 	isHotkeyMode = document.getElementById("hotkeyActivation").checked;
 	// checkbox.onmousedown = function(event) { event.preventDefault(); }
-	document.getElementById("hotkeyActivation").addEventListener("click", function(event){
-		event.preventDefault()
-	});
 }
 
 function setHotkeyFunctions() {

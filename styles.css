@@ -410,8 +410,8 @@ input[type="number"] {
 }
 
 #sbPeriodNum {
-	background-color:#ffffff;
-	color:#000000;
+	background-color:#404040;
+	color:#ffffff;
 	font-size:max(7.25vh,5.5vw,12px);
 	line-height:max(6.75vh,4.125vw,12px);
 	text-align:center;
@@ -419,8 +419,8 @@ input[type="number"] {
 }
 
 #sbMiniNum {
-	background-color:#ff0000;
-	color:#ffffff;
+	background-color:#400000;
+	color:#ff3030;
 	font-size:max(7.25vh,5.5vw,12px);
 	line-height:max(6.75vh,4.125vw,12px);
 	text-align:center;
